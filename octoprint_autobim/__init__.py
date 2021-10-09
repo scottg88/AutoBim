@@ -120,7 +120,7 @@ class AutobimPlugin(
 		elif command == "test_corner":
 			self._logger.info("Got %s" % data)
 			self._send_G30((data['x'], data['y']))
-			if math.isnan(self._get_z_value()):
+			if math.isnan(self._get_z_value(10)):
 				self._plugin_manager.send_plugin_message(
 					self._identifier,
 					dict(type="error", message="Point X%s Y%s seems to be unreachable!"))
@@ -263,9 +263,9 @@ class AutobimPlugin(
 		self.g30_running = True
 		self._printer.commands("G30 X%s Y%s" % point)
 
-	def _get_z_value(self):
+	def _get_z_value(self, timeout=QUEUE_TIMEOUT):
 		try:
-			return self.z_values.get(timeout=QUEUE_TIMEOUT)
+			return self.z_values.get(timeout=timeout)
 		except queue.Empty:
 			return float('nan')
 		finally:
